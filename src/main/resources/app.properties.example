@@ -1,0 +1,3 @@
+db.baseUrl = "jdbc:mysql://localhost:3306/"
+db.user = INSERIRE_USERNAME
+db.pass = INSERIRE_PASSWORD
