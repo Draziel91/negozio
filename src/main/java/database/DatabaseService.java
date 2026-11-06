@@ -24,6 +24,10 @@ public class DatabaseService {
         acquistaProdotti(clienteId, prodottoId, 1);
     }
 
+    public void metodoTest(){
+
+    }
+
     public void acquistaProdotti(int clienteId, int prodottoId, int quantita) {
         if(quantita < 1){
             IO.println("Valore quantita non valido");
