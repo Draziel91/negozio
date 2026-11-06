@@ -17,11 +17,8 @@ public class ProvaConnessione {
         DatabaseService ds = new DatabaseService();
 
         ClienteDAO cd = new ClienteDAO();
-        cd.aggiungiSaldo(1, 10);
-
+//        cd.aggiungiSaldo(1, 10);
 
         ds.acquistaProdotti(1,2, 2);
-
-
     }
 }

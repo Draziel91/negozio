@@ -5,6 +5,8 @@ import model.Cliente;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ClienteDAO implements BaseDAO <Cliente, Integer>{
 
@@ -30,6 +32,7 @@ public class ClienteDAO implements BaseDAO <Cliente, Integer>{
 
             if (!clienteTrovato) {
                 IO.println("Nessun cliente trovato con le credenziali inserite. id: " + id);
+                throw new SQLException("Cliente non trovato");
             }
 
 
@@ -89,6 +92,7 @@ public class ClienteDAO implements BaseDAO <Cliente, Integer>{
         Connection conn = db.getConnection("negozio");
         String query = "Select * from clienti";
         ArrayList<Cliente> clienti = new ArrayList<>();
+
         try {
             Statement stm = conn.createStatement();
             ResultSet rs = stm.executeQuery(query);
@@ -98,6 +102,7 @@ public class ClienteDAO implements BaseDAO <Cliente, Integer>{
                 IO.println(rs.getString("nome") + " " + rs.getString("cognome") + " " +
                         rs.getString("citta"));
                 clienti.add(new Cliente(rs.getInt("id"), rs.getString("nome"), rs.getString("cognome"), rs.getString("email"), rs.getString("citta"), rs.getDouble("saldo")));
+
             }
 
             if (conn != null) {
@@ -143,6 +148,30 @@ public class ClienteDAO implements BaseDAO <Cliente, Integer>{
         return 0;
     }
 
+    public int insert(Cliente cliente, Connection conn) {
+        String query = "insert into clienti (nome, cognome, email, citta, saldo) values (?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setString(1, cliente.getNome());
+            ps.setString(2, cliente.getCognome());
+            ps.setString(3, cliente.getEmail());
+            ps.setString(4, cliente.getCitta());
+            ps.setDouble(5, cliente.getSaldo());
+
+            int result = ps.executeUpdate();
+            if (result > 0) {
+                IO.println("Cliente inserito correttamente.");
+                return result;
+            }
+
+
+        } catch (SQLException e) {
+            IO.println("Qualcosa è andato storto.");
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public int aggiornaSaldo(int id, double saldo, Connection conn) throws SQLException {
         String query = "update clienti set saldo = ? where id = ?";
         try(PreparedStatement ps = conn.prepareStatement(query)){
@@ -163,10 +192,9 @@ public class ClienteDAO implements BaseDAO <Cliente, Integer>{
         }
     }
 
-    public void aggiungiSaldo(int id, double saldo){
+    public int aggiungiSaldo(int id, double saldo, Connection conn){
         String query = "update clienti set saldo = saldo + ? where id = ?";
-        try (Connection conn = db.getConnection("negozio");
-             PreparedStatement ps = conn.prepareStatement(query)) {
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
 
             ps.setDouble(1, saldo);
             ps.setInt(2, id);
@@ -174,14 +202,16 @@ public class ClienteDAO implements BaseDAO <Cliente, Integer>{
             int result = ps.executeUpdate();
             if (result > 0) {
                 IO.println("Saldo cliente aggiornato correttamente");
+                return result;
             }else{
-                IO.println("Cliente non trovato!");
+                throw new SQLException("Cliente non trovato!");
             }
 
 
         } catch (SQLException e) {
             IO.println("Qualcosa è andato storto.");
             e.printStackTrace();
+            return 0;
         }
     }
 }
